@@ -59,6 +59,11 @@
   "Match a git status abbreviation to a readable string."
   :group 'consult-ls-git)
 
+
+(defcustom consult-ls-git-show-untracked-files t
+  "If t show untracked files in the status view."
+  :group 'consult-ls-git)
+
 (defvar consult-ls-git--project-root nil)
 
 (defvar consult-ls-git--source-tracked-files
@@ -68,7 +73,9 @@
         :face     'consult-file
         :history  'file-name-history
         :action   (lambda (f) (consult--file-action (concat consult-ls-git--project-root f)))
-        :annotate (lambda (cand) "")    ; Otherwise without marginalia this will show the :name
+        :annotate (lambda (cand) "")    ; Otherwise without this
+                                        ; marginalia will show the
+                                        ; :name as builtin annotation
         :items
         (lambda ()
           (split-string
@@ -100,7 +107,7 @@ Returns nil in case no valid project root was found."
 (defun consult-ls-git--status-candidates ()
   "Return a list of paths that are considered modified in some way by git."
   (let ((candidates (split-string
-                     (shell-command-to-string (format "git -C %s status --porcelain -z" consult-ls-git--project-root))
+                     (shell-command-to-string (format "git -C %s status --porcelain -z %s" consult-ls-git--project-root (if consult-ls-git-show-untracked-files "" "-uno")))
                      "\000" 'omit-nulls)))
     (save-match-data
       (cl-loop for cand in candidates
