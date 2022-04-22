@@ -128,5 +128,12 @@ Returns nil in case no valid project root was found."
                     :require-match t
                     :sort nil)))
 
+;;;###autoload
+(defun consult-ls-git-ls-files ()
+  "Select a tracked file from a git repository."
+  (interactive)
+  (let ((consult-ls-git-sources '(consult-ls-git--source-tracked-files)))
+    (call-interactively #'consult-ls-git)))
+
 (provide 'consult-ls-git)
 ;;; consult-ls-git.el ends here
