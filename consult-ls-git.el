@@ -135,5 +135,14 @@ Returns nil in case no valid project root was found."
   (let ((consult-ls-git-sources '(consult-ls-git--source-tracked-files)))
     (call-interactively #'consult-ls-git)))
 
+;;;###autoload
+(defun consult-ls-git-ls-status ()
+  "Select a file from a git repository considered to be modified or untracked.
+
+Untracked files are only included if `consult-ls-git-show-untracked-files' is t."
+  (interactive)
+  (let ((consult-ls-git-sources '(consult-ls-git--source-status-files)))
+    (call-interactively #'consult-ls-git)))
+
 (provide 'consult-ls-git)
 ;;; consult-ls-git.el ends here
