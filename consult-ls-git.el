@@ -32,26 +32,57 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'consult)
 
+(defgroup consult-ls-git nil
+  "Consult for git."
+  :group 'consult-ls-git)
+
 (defcustom consult-ls-git-sources
-  '(consult-ls-git--source-tracked-files)
-  "Sources used by `consult-ls-git'")
+  '(consult-ls-git--source-status-files
+    consult-ls-git--source-tracked-files)
+  "Sources used by `consult-ls-git'"
+  :group 'consult-ls-git)
+
+(defcustom consult-ls-git-status-types
+  '(("^\\( M \\)\\(.*\\)" . modified-not-staged)
+    ("^\\(M+ *\\)\\(.*\\)" . modified-and-staged)
+    ("^\\([?]\\{2\\} \\)\\(.*\\)" . untracked)
+    ("^\\([AC] +\\)\\(.*\\)" . added-copied)
+    ("^\\( [D] \\)\\(.*\\)" . deleted-not-staged)
+    ("^\\(RM?\\).* -> \\(.*\\)" . renamed-modified)
+    ("^\\([D] +\\)\\(.*\\)" . deleted-and-staged)
+    ("^\\(UU \\)\\(.*\\)" . conflict)
+    ("^\\(AM \\)\\(.*\\)" . added-modified)
+    ("^.*") . unknown)
+  "Match a git status abbreviation to a readable string."
+  :group 'consult-ls-git)
 
 (defvar consult-ls-git--project-root nil)
 
 (defvar consult-ls-git--source-tracked-files
-  (list :name     "Tracked files"
-        :narrow   '(?f . "Tracked files")
+  (list :name     "Tracked Files"
+        :narrow   '(?f . "Tracked Files")
         :category 'file
         :face     'consult-file
         :history  'file-name-history
         :action   (lambda (f) (consult--file-action (concat consult-ls-git--project-root f)))
+        :annotate (lambda (cand) "")    ; Otherwise without marginalia this will show the :name
         :items
         (lambda ()
           (split-string
            (shell-command-to-string (format "git -C %s ls-files -z" consult-ls-git--project-root))
            "\000" 'omit-nulls))))
+
+(defvar consult-ls-git--source-status-files
+  (list :name     "Status"
+        :narrow   '(?s . "Status")
+        :category 'file
+        :history  'file-name-history
+        :action   (lambda (f) (consult--file-action (concat consult-ls-git--project-root f)))
+        :annotate #'consult-ls-git--status-annotate-candidate
+        :items    #'consult-ls-git--status-candidates))
 
 (defun consult-ls-git--get-project-root ()
   "Return git project root.
@@ -61,6 +92,24 @@ Returns nil in case no valid project root was found."
   (or (locate-dominating-file default-directory ".git")
       (locate-dominating-file (project-prompt-project-dir) ".git")
       (error "Not a git repository")))
+
+(defun consult-ls-git--status-annotate-candidate (cand)
+  "Create status annotation for CAND."
+  (symbol-name (get-text-property 0 'consult-ls-git-status cand)))
+
+(defun consult-ls-git--status-candidates ()
+  "Return a list of paths that are considered modified in some way by git."
+  (let ((candidates (split-string
+                     (shell-command-to-string (format "git -C %s status --porcelain -z" consult-ls-git--project-root))
+                     "\000" 'omit-nulls)))
+    (save-match-data
+      (cl-loop for cand in candidates
+               collect
+               (let* ((status (cdr (cl-find-if (lambda (status)
+                                                 (string-match (car status) cand))
+                                               consult-ls-git-status-types)))
+                      (path (if (eq status 'unknown) cand (match-string 2 cand))))
+                 (propertize path 'consult-ls-git-status status))))))
 
 ;;;###autoload
 (defun consult-ls-git ()
