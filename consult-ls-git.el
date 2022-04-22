@@ -34,6 +34,7 @@
 
 (require 'cl-lib)
 (require 'consult)
+(require 'vc)
 
 (defgroup consult-ls-git nil
   "Consult for git."
@@ -41,6 +42,7 @@
 
 (defcustom consult-ls-git-sources
   '(consult-ls-git--source-status-files
+    consult-ls-git--source-stash
     consult-ls-git--source-tracked-files)
   "Sources used by `consult-ls-git'"
   :group 'consult-ls-git)
@@ -59,6 +61,13 @@
   "Match a git status abbreviation to a readable string."
   :group 'consult-ls-git)
 
+(defcustom consult-ls-git-stash-actions
+  '(("apply" . vc-git-stash-apply)
+    ("pop" . vc-git-stash-pop)
+    ("drop" . vc-git-stash-delete)
+    ("show" . vc-git-stash-show))
+  "List of possible actions to invoke on a stash."
+  :group 'consult-ls-git)
 
 (defcustom consult-ls-git-show-untracked-files t
   "If t show untracked files in the status view."
@@ -91,6 +100,21 @@
         :annotate #'consult-ls-git--status-annotate-candidate
         :items    #'consult-ls-git--status-candidates))
 
+(defvar consult-ls-git--source-stash
+  (list :name     "Stash"
+        :narrow   '(?z . "stash")
+        :category 'consult-ls-git-stash
+        :history  'file-name-history
+        :annotate (lambda (cand) "")    ; Otherwise without this
+                                        ; marginalia will show the
+                                        ; :name as builtin annotation
+        :action   #'consult-ls-git--stash-action
+        :items
+        (lambda ()
+          (split-string
+           (shell-command-to-string (format "git -C %s stash list -z" consult-ls-git--project-root))
+           "\000" 'omit-nulls))))
+
 (defun consult-ls-git--get-project-root ()
   "Return git project root.
 
@@ -118,6 +142,13 @@ Returns nil in case no valid project root was found."
                       (path (if (eq status 'unknown) cand (match-string 2 cand))))
                  (propertize path 'consult-ls-git-status status))))))
 
+(defun consult-ls-git--stash-action (cand)
+  "Try to apply or pop a selected stash."
+  (let* ((stash (substring cand 0 (string-search ":" cand)))
+         (actions (mapcar #'car consult-ls-git-stash-actions))
+         (action (completing-read "Action: " actions nil t)))
+    (apply (cdr (assoc action consult-ls-git-stash-actions)) `(,stash))))
+
 ;;;###autoload
 (defun consult-ls-git ()
   "Create a multi view for current git repository."
@@ -142,6 +173,13 @@ Returns nil in case no valid project root was found."
 Untracked files are only included if `consult-ls-git-show-untracked-files' is t."
   (interactive)
   (let ((consult-ls-git-sources '(consult-ls-git--source-status-files)))
+    (call-interactively #'consult-ls-git)))
+
+;;;###autoload
+(defun consult-ls-git-ls-stash ()
+  "Select a stash from a git repository and apply, pop or drop it."
+  (interactive)
+  (let ((consult-ls-git-sources '(consult-ls-git--source-stash)))
     (call-interactively #'consult-ls-git)))
 
 (provide 'consult-ls-git)
