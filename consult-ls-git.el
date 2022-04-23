@@ -5,7 +5,7 @@
 ;; Author:  Robin Joy
 ;; Keywords: convenience
 ;; Version: 0.1
-;; Package-Requires: ((emacs "27.1") (consult "0.16"))
+;; Package-Requires: ((emacs "28.1") (consult "0.16"))
 ;; URL: https://github.com/rcj/consult-ls-git
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@
 ;;   f: Tracked Files
 
 ;; If `default-directory' is inside a git repository, it will use this
-;; repository. Otherwise `project-prompt-project-dir' is used to select
+;; repository.  Otherwise `project-prompt-project-dir' is used to select
 ;; the project directory.
 
 ;; Each view also has a standalone command in case that is preferable:
@@ -55,7 +55,7 @@
   '(consult-ls-git--source-status-files
     consult-ls-git--source-stash
     consult-ls-git--source-tracked-files)
-  "Sources used by `consult-ls-git'"
+  "Sources used by `consult-ls-git'."
   :group 'consult-ls-git)
 
 (defcustom consult-ls-git-status-types
@@ -123,8 +123,9 @@
 (defun consult-ls-git--get-project-root ()
   "Return git project root.
 
-If default-directory isn't inside a git repository, call `project-root' to select a project.
-Returns nil in case no valid project root was found."
+If `default-directory' isn't inside a git repository, call
+`project-root' to select a project.  Returns nil in case no valid
+project root was found."
   (or (locate-dominating-file default-directory ".git")
       (locate-dominating-file (project-prompt-project-dir) ".git")
       (error "Not a git repository")))
@@ -148,7 +149,7 @@ Returns nil in case no valid project root was found."
                  (propertize path 'consult-ls-git-status status))))))
 
 (defun consult-ls-git--stash-action (cand)
-  "Try to apply or pop a selected stash."
+  "Try to apply or pop a selected CAND."
   (let* ((stash (substring cand 0 (string-search ":" cand)))
          (actions (mapcar #'car consult-ls-git-stash-actions))
          (action (completing-read "Action: " actions nil t)))
@@ -201,9 +202,10 @@ Untracked files are only included if `consult-ls-git-show-untracked-files' is t.
 
 ;;;###autoload
 (defun consult-ls-git-ls-status-other-window ()
-  "Select a file from a git repository considered to be modified or untracked and open it in another window.
+  "Open a modified/untracked file from a git repository in another window.
 
-Untracked files are only included if `consult-ls-git-show-untracked-files' is t."
+Untracked files are only included if
+`consult-ls-git-show-untracked-files' is t."
   (interactive)
   (let ((consult-ls-git-sources '(consult-ls-git--source-status-files)))
     (call-interactively #'consult-ls-git-other-window)))
