@@ -154,12 +154,30 @@ Returns nil in case no valid project root was found."
                     :require-match t
                     :sort nil)))
 
+(defun consult-ls-git-other-window ()
+  "Create a multi view for current git repository and open selected file in another window."
+  (interactive)
+  (let* ((consult-ls-git--project-root (consult-ls-git--get-project-root))
+         (default-directory consult-ls-git--project-root)
+         (consult--buffer-display #'switch-to-buffer-other-window))
+    (consult--multi consult-ls-git-sources
+                    :prompt "Switch to: "
+                    :require-match t
+                    :sort nil)))
+
 ;;;###autoload
 (defun consult-ls-git-ls-files ()
   "Select a tracked file from a git repository."
   (interactive)
   (let ((consult-ls-git-sources '(consult-ls-git--source-tracked-files)))
     (call-interactively #'consult-ls-git)))
+
+;;;###autoload
+(defun consult-ls-git-ls-files-other-window ()
+  "Select a tracked file from a git repository and open it in another window."
+  (interactive)
+  (let ((consult-ls-git-sources '(consult-ls-git--source-tracked-files)))
+    (call-interactively #'consult-ls-git-other-window)))
 
 ;;;###autoload
 (defun consult-ls-git-ls-status ()
@@ -169,6 +187,15 @@ Untracked files are only included if `consult-ls-git-show-untracked-files' is t.
   (interactive)
   (let ((consult-ls-git-sources '(consult-ls-git--source-status-files)))
     (call-interactively #'consult-ls-git)))
+
+;;;###autoload
+(defun consult-ls-git-ls-status-other-window ()
+  "Select a file from a git repository considered to be modified or untracked and open it in another window.
+
+Untracked files are only included if `consult-ls-git-show-untracked-files' is t."
+  (interactive)
+  (let ((consult-ls-git-sources '(consult-ls-git--source-status-files)))
+    (call-interactively #'consult-ls-git-other-window)))
 
 ;;;###autoload
 (defun consult-ls-git-ls-stash ()
