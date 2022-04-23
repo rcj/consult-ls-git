@@ -147,7 +147,8 @@ Returns nil in case no valid project root was found."
 (defun consult-ls-git ()
   "Create a multi view for current git repository."
   (interactive)
-  (let ((consult-ls-git--project-root (consult-ls-git--get-project-root)))
+  (let* ((consult-ls-git--project-root (consult-ls-git--get-project-root))
+         (default-directory consult-ls-git--project-root))
     (consult--multi consult-ls-git-sources
                     :prompt "Switch to: "
                     :require-match t
