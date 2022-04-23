@@ -91,7 +91,7 @@
 (defvar consult-ls-git--source-status-files
   (list :name     "Status"
         :narrow   '(?s . "Status")
-        :category 'file
+        :category 'consult-ls-git-status
         :history  'file-name-history
         :action   (lambda (f) (consult--file-action (concat consult-ls-git--project-root f)))
         :annotate #'consult-ls-git--status-annotate-candidate
