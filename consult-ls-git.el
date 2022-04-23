@@ -82,9 +82,6 @@
         :face     'consult-file
         :history  'file-name-history
         :action   (lambda (f) (consult--file-action (concat consult-ls-git--project-root f)))
-        :annotate (lambda (cand) "")    ; Otherwise without this
-                                        ; marginalia will show the
-                                        ; :name as builtin annotation
         :items
         (lambda ()
           (split-string
@@ -105,9 +102,6 @@
         :narrow   '(?z . "stash")
         :category 'consult-ls-git-stash
         :history  'file-name-history
-        :annotate (lambda (cand) "")    ; Otherwise without this
-                                        ; marginalia will show the
-                                        ; :name as builtin annotation
         :action   #'consult-ls-git--stash-action
         :items
         (lambda ()
