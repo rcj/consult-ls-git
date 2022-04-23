@@ -1,0 +1,74 @@
+#+TITLE: consult-ls-git.el - consult extension for git
+#+AUTHOR: Robin Joy
+#+EMAIL: emacs@robinjoy.net
+#+LANGUAGE: en
+
+* Overview
+=consult-ls-git= allows to quickly select a file from a git repository
+or act on a stash.  It provides a consult multi view of files
+considered by =git status=, stashes as well as all tracked files.
+Alternatively you can narrow to a specific section via the shortcut key:
+- s: Status
+- z: Stash
+- f: Tracked Files
+
+If =default-directory= is inside a git repository, it will use this
+repository. Otherwise =project-prompt-project-dir= is used to select
+the project directory.
+
+Each view also has a standalone command in case that is preferable:
+- =consult-ls-git-status=
+- =consult-ls-git-stash=
+- =consult-ls-git-tracked-files=
+
+* Examples
+  - [[file:examples/consult-ls-git-status.gif][Status narrowing]]
+  - [[file:videos/consult-ls-git-stash.gif][Stash narrowing]]
+  - [[file:videos/consult-ls-git-tracked-files.gif][Tracked files narrowing]]
+
+* Installation
+** [[https://github.com/raxod502/straight.el][Straight.el]]
+Install directly from source (a.k.a this repository) using
+=straight.el=. The configuration shown here relies on the
+=use-package= macro.
+
+#+begin_src emacs-lisp
+  ;; git
+  (use-package consult-ls-git
+    :straight (consult-ls-git :type git :host github :repo "rcj/consult-ls-git")
+    :bind
+    (("C-c g f" . #'consult-ls-git)
+     ("C-c g F" . #'consult-ls-git-other-window)))
+
+  ;; melpa
+  (use-package consult-ls-git
+    :straight t
+    :bind
+    (("C-c g f" . #'consult-ls-git)
+     ("C-c g F" . #'consult-ls-git-other-window)))
+#+end_src
+
+** [[https://github.com/jwiegley/use-package][Use-package]] or package-install
+
+#+begin_src emacs-lisp
+  ;; Make sure you have MELPA as a package source.
+  (package-refresh-contents)
+
+  (package-install 'consult-ls-git)
+  (require 'consult-ls-git)
+  (global-set-key (kbd "C-c g f") #'consult-ls-git)
+  (global-set-key (kbd "C-c g F") #'consult-ls-git-other-window)
+#+end_src
+
+Or install using use-package
+#+begin_src emacs-lisp
+  (use-package consult-ls-git
+    :ensure t
+    :bind
+    (("C-c g f" . #'consult-ls-git)
+     ("C-c g F" . #'consult-ls-git-other-window)))
+#+end_src
+
+** Manual
+   Just download consult-ls-git.el and place it in a directory that is
+   in your =load-path= and simply ~(require 'consult-ls-git)~.
