@@ -56,7 +56,8 @@
     consult-ls-git--source-stash
     consult-ls-git--source-tracked-files)
   "Sources used by `consult-ls-git'."
-  :group 'consult-ls-git)
+  :group 'consult-ls-git
+  :type '(repeat symbol))
 
 (defcustom consult-ls-git-status-types
   '(("^\\( M \\)\\(.*\\)" . modified-not-staged)
@@ -70,7 +71,8 @@
     ("^\\(AM \\)\\(.*\\)" . added-modified)
     ("^.*") . unknown)
   "Match a git status abbreviation to a readable string."
-  :group 'consult-ls-git)
+  :group 'consult-ls-git
+  :type '(repeat (string . function)))
 
 (defcustom consult-ls-git-stash-actions
   '(("apply" . vc-git-stash-apply)
@@ -78,11 +80,13 @@
     ("drop" . vc-git-stash-delete)
     ("show" . vc-git-stash-show))
   "List of possible actions to invoke on a stash."
-  :group 'consult-ls-git)
+  :group 'consult-ls-git
+  :type '(repeat (string . function)))
 
 (defcustom consult-ls-git-show-untracked-files t
   "If t show untracked files in the status view."
-  :group 'consult-ls-git)
+  :group 'consult-ls-git
+  :type 'boolean)
 
 (defvar consult-ls-git--project-root nil)
 
@@ -167,7 +171,9 @@ project root was found."
                     :sort nil)))
 
 (defun consult-ls-git-other-window ()
-  "Create a multi view for current git repository and open selected file in another window."
+  "Create a multi view for current git repository.
+
+Selected files are opened in another window."
   (interactive)
   (let* ((consult-ls-git--project-root (consult-ls-git--get-project-root))
          (default-directory consult-ls-git--project-root)
