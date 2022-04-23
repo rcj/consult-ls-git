@@ -44,6 +44,7 @@
 
 (require 'cl-lib)
 (require 'consult)
+(require 'project)
 (require 'vc)
 
 (defgroup consult-ls-git nil
