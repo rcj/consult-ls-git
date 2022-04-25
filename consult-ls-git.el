@@ -88,26 +88,24 @@
   :group 'consult-ls-git
   :type 'boolean)
 
-(defvar consult-ls-git--project-root nil)
-
 (defvar consult-ls-git--source-tracked-files
   (list :name     "Tracked Files"
         :narrow   '(?f . "Tracked Files")
         :category 'file
         :face     'consult-file
         :history  'file-name-history
-        :action   (lambda (f) (consult--file-action (concat consult-ls-git--project-root f)))
+        :action   (lambda (f) (consult--file-action (concat default-directory f)))
         :items
         (lambda ()
           (consult-ls-git--candidates-from-git-command
-           "ls-files -z" consult-ls-git--project-root))))
+           "ls-files -z" default-directory))))
 
 (defvar consult-ls-git--source-status-files
   (list :name     "Status"
         :narrow   '(?s . "Status")
         :category 'consult-ls-git-status
         :history  'file-name-history
-        :action   (lambda (f) (consult--file-action (concat consult-ls-git--project-root f)))
+        :action   (lambda (f) (consult--file-action (concat default-directory f)))
         :annotate #'consult-ls-git--status-annotate-candidate
         :items    #'consult-ls-git--status-candidates))
 
@@ -120,7 +118,7 @@
         :items
         (lambda ()
           (consult-ls-git--candidates-from-git-command
-           "stash list -z" consult-ls-git--project-root))))
+           "stash list -z" default-directory))))
 
 (defun consult-ls-git--execute-git-command (cmd root)
   "Execute CMD git ROOT."
@@ -159,7 +157,7 @@ project root was found."
   (let ((candidates (consult-ls-git--candidates-from-git-command
                      (format "status --porcelain -z%s"
                              (if consult-ls-git-show-untracked-files "" " -uno"))
-                     consult-ls-git--project-root)))
+                     default-directory)))
     (save-match-data
       (cl-loop for cand in candidates
                collect
@@ -180,8 +178,7 @@ project root was found."
 (defun consult-ls-git ()
   "Create a multi view for current git repository."
   (interactive)
-  (let* ((consult-ls-git--project-root (consult-ls-git--get-project-root))
-         (default-directory consult-ls-git--project-root))
+  (let* ((default-directory (consult-ls-git--get-project-root)))
     (consult--multi consult-ls-git-sources
                     :prompt "Switch to: "
                     :require-match t
@@ -192,8 +189,7 @@ project root was found."
 
 Selected files are opened in another window."
   (interactive)
-  (let* ((consult-ls-git--project-root (consult-ls-git--get-project-root))
-         (default-directory consult-ls-git--project-root)
+  (let* ((default-directory (consult-ls-git--get-project-root))
          (consult--buffer-display #'switch-to-buffer-other-window))
     (consult--multi consult-ls-git-sources
                     :prompt "Switch to: "
