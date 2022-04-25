@@ -83,10 +83,25 @@
   :group 'consult-ls-git
   :type '(repeat (string . function)))
 
+(defcustom consult-ls-git-status-command-options nil
+  "List of command line options passed to the call of git status to determine candidates."
+  :group 'consult-ls-git
+  :type '(repeat string))
+
 (defcustom consult-ls-git-show-untracked-files t
   "If t show untracked files in the status view."
   :group 'consult-ls-git
   :type 'boolean)
+
+(defcustom consult-ls-git-stash-command-options nil
+  "List of command line options passed to the call of git stash to determine candidates."
+  :group 'consult-ls-git
+  :type '(repeat string))
+
+(defcustom consult-ls-git-tracked-files-command-options nil
+  "List of command line options passed to the call of git ls-files to determine candidates."
+  :group 'consult-ls-git
+  :type '(repeat string))
 
 (defvar consult-ls-git--source-tracked-files
   (list :name     "Tracked Files"
@@ -98,7 +113,9 @@
         :items
         (lambda ()
           (consult-ls-git--candidates-from-git-command
-           "ls-files -z" default-directory))))
+           (format "ls-files -z %s"
+                   (mapconcat #'identity consult-ls-git-tracked-files-command-options " "))
+           default-directory))))
 
 (defvar consult-ls-git--source-status-files
   (list :name     "Status"
@@ -118,7 +135,8 @@
         :items
         (lambda ()
           (consult-ls-git--candidates-from-git-command
-           "stash list -z" default-directory))))
+           (format "stash list -z %s" (mapconcat #'identity consult-ls-git-stash-command-options " "))
+           default-directory))))
 
 (defun consult-ls-git--execute-git-command (cmd root)
   "Execute CMD git ROOT."
@@ -154,10 +172,12 @@ project root was found."
 
 (defun consult-ls-git--status-candidates ()
   "Return a list of paths that are considered modified in some way by git."
-  (let ((candidates (consult-ls-git--candidates-from-git-command
-                     (format "status --porcelain -z%s"
-                             (if consult-ls-git-show-untracked-files "" " -uno"))
-                     default-directory)))
+  (let* ((options (append `(,(when consult-ls-git-show-untracked-files "-uno")
+                            "--porcelain")
+                          consult-ls-git-status-command-options))
+         (candidates (consult-ls-git--candidates-from-git-command
+                      (format "status -z %s" (mapconcat #'identity options " "))
+                      default-directory)))
     (save-match-data
       (cl-loop for cand in candidates
                collect
