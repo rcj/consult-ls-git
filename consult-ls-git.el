@@ -84,7 +84,7 @@
   :type '(repeat (string . function)))
 
 (defcustom consult-ls-git-status-command-options nil
-  "List of command line options passed to the call of git status to determine candidates."
+  "List of command line options passed to git status to determine candidates."
   :group 'consult-ls-git
   :type '(repeat string))
 
@@ -94,12 +94,12 @@
   :type 'boolean)
 
 (defcustom consult-ls-git-stash-command-options nil
-  "List of command line options passed to the call of git stash to determine candidates."
+  "List of command line options passed git stash to determine candidates."
   :group 'consult-ls-git
   :type '(repeat string))
 
 (defcustom consult-ls-git-tracked-files-command-options nil
-  "List of command line options passed to the call of git ls-files to determine candidates."
+  "List of command line options passed to git ls-files to determine candidates."
   :group 'consult-ls-git
   :type '(repeat string))
 
