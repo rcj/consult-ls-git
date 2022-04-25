@@ -99,11 +99,8 @@
         :action   (lambda (f) (consult--file-action (concat consult-ls-git--project-root f)))
         :items
         (lambda ()
-          (split-string
-           (shell-command-to-string
-            (format "git -C %s ls-files -z"
-                    (shell-quote-argument consult-ls-git--project-root)))
-           "\000" 'omit-nulls))))
+          (consult-ls-git--candidates-from-git-command
+           "ls-files -z" consult-ls-git--project-root))))
 
 (defvar consult-ls-git--source-status-files
   (list :name     "Status"
@@ -122,11 +119,26 @@
         :action   #'consult-ls-git--stash-action
         :items
         (lambda ()
-          (split-string
-           (shell-command-to-string
-            (format "git -C %s stash list -z"
-                    (shell-quote-argument consult-ls-git--project-root)))
-           "\000" 'omit-nulls))))
+          (consult-ls-git--candidates-from-git-command
+           "stash list -z" consult-ls-git--project-root))))
+
+(defun consult-ls-git--execute-git-command (cmd root)
+  "Execute CMD git ROOT."
+  (shell-command-to-string
+   (format "git -C %s %s" (shell-quote-argument root) cmd)))
+
+(defun consult-ls-git--split-null-string (str)
+  "Split STR  with null byte as separator into individual parts.
+
+Empty strings are omitted."
+  (split-string str "\000" 'omit-nulls))
+
+(defun consult-ls-git--candidates-from-git-command (cmd root)
+  "Create list of candidates from the result of running git CMD in ROOT.
+
+Empty strings are omitted."
+  (consult-ls-git--split-null-string
+   (consult-ls-git--execute-git-command cmd root)))
 
 (defun consult-ls-git--get-project-root ()
   "Return git project root.
@@ -144,12 +156,10 @@ project root was found."
 
 (defun consult-ls-git--status-candidates ()
   "Return a list of paths that are considered modified in some way by git."
-  (let ((candidates (split-string
-                     (shell-command-to-string
-                      (format "git -C %s status --porcelain -z %s"
-                              (shell-quote-argument consult-ls-git--project-root)
-                              (if consult-ls-git-show-untracked-files "" "-uno")))
-                     "\000" 'omit-nulls)))
+  (let ((candidates (consult-ls-git--candidates-from-git-command
+                     (format "status --porcelain -z%s"
+                             (if consult-ls-git-show-untracked-files "" " -uno"))
+                     consult-ls-git--project-root)))
     (save-match-data
       (cl-loop for cand in candidates
                collect
