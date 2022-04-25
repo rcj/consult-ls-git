@@ -13,8 +13,9 @@ Alternatively you can narrow to a specific section via the shortcut key:
 - f: Tracked Files
 
 If =default-directory= is inside a git repository, it will use this
-repository. Otherwise =project-prompt-project-dir= is used to select
-the project directory.
+repository. Otherwise `consult-ls-git-project-prompt-function' is used
+to select the project directory.
+
 
 Each view also has a standalone command in case that is preferable:
 - =consult-ls-git-status=
