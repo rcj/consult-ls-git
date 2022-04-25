@@ -113,9 +113,8 @@
         :items
         (lambda ()
           (consult-ls-git--candidates-from-git-command
-           (format "ls-files -z %s"
-                   (mapconcat #'identity consult-ls-git-tracked-files-command-options " "))
-           default-directory))))
+           "ls-files" default-directory
+           consult-ls-git-tracked-files-command-options))))
 
 (defvar consult-ls-git--source-status-files
   (list :name     "Status"
@@ -135,8 +134,7 @@
         :items
         (lambda ()
           (consult-ls-git--candidates-from-git-command
-           (format "stash list -z %s" (mapconcat #'identity consult-ls-git-stash-command-options " "))
-           default-directory))))
+           "stash list" default-directory consult-ls-git-stash-command-options))))
 
 (defun consult-ls-git--execute-git-command (cmd root)
   "Execute CMD git ROOT."
@@ -149,12 +147,14 @@
 Empty strings are omitted."
   (split-string str "\000" 'omit-nulls))
 
-(defun consult-ls-git--candidates-from-git-command (cmd root)
+(defun consult-ls-git--candidates-from-git-command (command root options)
   "Create list of candidates from the result of running git CMD in ROOT.
 
-Empty strings are omitted."
-  (consult-ls-git--split-null-string
-   (consult-ls-git--execute-git-command cmd root)))
+Empty strings are omitted.
+OPTIONS is a list of additional command line options for CMD."
+  (let ((cmd (concat command " -z " (mapconcat #'identity options " "))))
+    (consult-ls-git--split-null-string
+     (consult-ls-git--execute-git-command cmd root))))
 
 (defun consult-ls-git--get-project-root ()
   "Return git project root.
@@ -176,8 +176,7 @@ project root was found."
                             "--porcelain")
                           consult-ls-git-status-command-options))
          (candidates (consult-ls-git--candidates-from-git-command
-                      (format "status -z %s" (mapconcat #'identity options " "))
-                      default-directory)))
+                      "status" default-directory options)))
     (save-match-data
       (cl-loop for cand in candidates
                collect
