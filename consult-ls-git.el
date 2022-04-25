@@ -100,7 +100,9 @@
         :items
         (lambda ()
           (split-string
-           (shell-command-to-string (format "git -C %s ls-files -z" consult-ls-git--project-root))
+           (shell-command-to-string
+            (format "git -C %s ls-files -z"
+                    (shell-quote-argument consult-ls-git--project-root)))
            "\000" 'omit-nulls))))
 
 (defvar consult-ls-git--source-status-files
@@ -121,7 +123,9 @@
         :items
         (lambda ()
           (split-string
-           (shell-command-to-string (format "git -C %s stash list -z" consult-ls-git--project-root))
+           (shell-command-to-string
+            (format "git -C %s stash list -z"
+                    (shell-quote-argument consult-ls-git--project-root)))
            "\000" 'omit-nulls))))
 
 (defun consult-ls-git--get-project-root ()
@@ -141,7 +145,10 @@ project root was found."
 (defun consult-ls-git--status-candidates ()
   "Return a list of paths that are considered modified in some way by git."
   (let ((candidates (split-string
-                     (shell-command-to-string (format "git -C %s status --porcelain -z %s" consult-ls-git--project-root (if consult-ls-git-show-untracked-files "" "-uno")))
+                     (shell-command-to-string
+                      (format "git -C %s status --porcelain -z %s"
+                              (shell-quote-argument consult-ls-git--project-root)
+                              (if consult-ls-git-show-untracked-files "" "-uno")))
                      "\000" 'omit-nulls)))
     (save-match-data
       (cl-loop for cand in candidates
