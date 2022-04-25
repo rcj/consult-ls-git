@@ -109,7 +109,7 @@
         :category 'file
         :face     'consult-file
         :history  'file-name-history
-        :action   (lambda (f) (consult--file-action (concat default-directory f)))
+        :state    #'consult--file-state
         :items
         (lambda ()
           (consult-ls-git--candidates-from-git-command
@@ -122,7 +122,7 @@
         :narrow   '(?s . "Status")
         :category 'consult-ls-git-status
         :history  'file-name-history
-        :action   (lambda (f) (consult--file-action (concat default-directory f)))
+        :state    #'consult--file-state
         :annotate #'consult-ls-git--status-annotate-candidate
         :items    #'consult-ls-git--status-candidates))
 
