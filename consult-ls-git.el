@@ -5,7 +5,7 @@
 ;; Author:  Robin Joy
 ;; Keywords: convenience
 ;; Version: 0.1
-;; Package-Requires: ((emacs "28.1") (consult "0.16"))
+;; Package-Requires: ((emacs "27.1") (consult "0.16"))
 ;; URL: https://github.com/rcj/consult-ls-git
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -32,8 +32,8 @@
 ;;   f: Tracked Files
 
 ;; If `default-directory' is inside a git repository, it will use this
-;; repository.  Otherwise `project-prompt-project-dir' is used to select
-;; the project directory.
+;; repository.  Otherwise `consult-ls-git-project-prompt-function' is
+;; used to select the project directory.
 
 ;; Each view also has a standalone command in case that is preferable:
 ;;   consult-ls-git-status
@@ -103,6 +103,14 @@
   :group 'consult-ls-git
   :type '(repeat string))
 
+(defcustom consult-ls-git-project-prompt-function
+  (if (version< emacs-version "28.1")
+      (lambda () (cdr (funcall #'consult--directory-prompt "Select project: " 'ask)))
+    #'project-prompt-project-dir)
+  "Function to ask for a project root if not in a git repository."
+  :group 'consult-ls-git
+  :type 'function)
+
 (defvar consult-ls-git--source-tracked-files
   (list :name     "Tracked Files"
         :narrow   '(?f . "Tracked Files")
@@ -163,7 +171,7 @@ If `default-directory' isn't inside a git repository, call
 `project-root' to select a project.  Returns nil in case no valid
 project root was found."
   (or (locate-dominating-file default-directory ".git")
-      (locate-dominating-file (project-prompt-project-dir) ".git")
+      (locate-dominating-file (funcall consult-ls-git-project-prompt-function) ".git")
       (error "Not a git repository")))
 
 (defun consult-ls-git--status-annotate-candidate (cand)
@@ -188,7 +196,7 @@ project root was found."
 
 (defun consult-ls-git--stash-action (cand)
   "Try to apply or pop a selected CAND."
-  (let* ((stash (substring cand 0 (string-search ":" cand)))
+  (let* ((stash (substring cand 0 (cl-search ":" cand)))
          (actions (mapcar #'car consult-ls-git-stash-actions))
          (action (completing-read "Action: " actions nil t)))
     (apply (cdr (assoc action consult-ls-git-stash-actions)) `(,stash))))
