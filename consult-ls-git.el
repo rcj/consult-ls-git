@@ -69,7 +69,7 @@
     ("^\\([D] +\\)\\(.*\\)" . deleted-and-staged)
     ("^\\(UU \\)\\(.*\\)" . conflict)
     ("^\\(AM \\)\\(.*\\)" . added-modified)
-    ("^.*") . unknown)
+    ("^.*" . unknown))
   "Match a git status abbreviation to a readable string."
   :group 'consult-ls-git
   :type '(repeat (string . function)))
