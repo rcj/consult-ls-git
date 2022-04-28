@@ -205,7 +205,7 @@ project root was found."
 (defun consult-ls-git ()
   "Create a multi view for current git repository."
   (interactive)
-  (let* ((default-directory (consult-ls-git--get-project-root)))
+  (let* ((default-directory (expand-file-name (consult-ls-git--get-project-root))))
     (consult--multi consult-ls-git-sources
                     :prompt "Switch to: "
                     :require-match t
@@ -216,7 +216,7 @@ project root was found."
 
 Selected files are opened in another window."
   (interactive)
-  (let* ((default-directory (consult-ls-git--get-project-root))
+  (let* ((default-directory (expand-file-name (consult-ls-git--get-project-root)))
          (consult--buffer-display #'switch-to-buffer-other-window))
     (consult--multi consult-ls-git-sources
                     :prompt "Switch to: "
