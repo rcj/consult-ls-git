@@ -155,14 +155,14 @@
 Empty strings are omitted."
   (split-string str "\000" 'omit-nulls))
 
-(defun consult-ls-git--candidates-from-git-command (command root options)
+(defun consult-ls-git--candidates-from-git-command (cmd root options)
   "Create list of candidates from the result of running git CMD in ROOT.
 
 Empty strings are omitted.
 OPTIONS is a list of additional command line options for CMD."
-  (let ((cmd (concat command " -z " (mapconcat #'identity options " "))))
+  (let ((command (concat cmd " -z " (mapconcat #'identity options " "))))
     (consult-ls-git--split-null-string
-     (consult-ls-git--execute-git-command cmd root))))
+     (consult-ls-git--execute-git-command command root))))
 
 (defun consult-ls-git--get-project-root ()
   "Return git project root.
