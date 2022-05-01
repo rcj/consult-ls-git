@@ -172,7 +172,7 @@ If `default-directory' isn't inside a git repository, call
 project root was found."
   (or (locate-dominating-file default-directory ".git")
       (locate-dominating-file (funcall consult-ls-git-project-prompt-function) ".git")
-      (error "Not a git repository")))
+      (user-error "Not a git repository")))
 
 (defun consult-ls-git--status-annotate-candidate (cand)
   "Create status annotation for CAND."
