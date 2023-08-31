@@ -1,6 +1,6 @@
 ;;; consult-ls-git.el --- Consult integration for git  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2022
+;; Copyright (C) 2022-2023
 
 ;; Author:  Robin Joy
 ;; Keywords: convenience
@@ -146,8 +146,13 @@
 
 (defun consult-ls-git--execute-git-command (cmd root)
   "Execute CMD git ROOT."
-  (shell-command-to-string
-   (format "git -C %s %s" (shell-quote-argument root) cmd)))
+  (let ((path (if (file-remote-p default-directory)
+                  (tramp-file-local-name root)
+                root)))
+    (with-output-to-string
+      (with-current-buffer
+          standard-output
+        (apply #'process-file "git" nil t nil `("-C" ,path ,@cmd))))))
 
 (defun consult-ls-git--split-null-string (str)
   "Split STR  with null byte as separator into individual parts.
@@ -160,7 +165,7 @@ Empty strings are omitted."
 
 Empty strings are omitted.
 OPTIONS is a list of additional command line options for CMD."
-  (let ((command (concat cmd " -z " (mapconcat #'identity options " "))))
+  (let ((command (append `(,@(split-string cmd " ") "-z") options)))
     (consult-ls-git--split-null-string
      (consult-ls-git--execute-git-command command root))))
 
@@ -180,7 +185,7 @@ project root was found."
 
 (defun consult-ls-git--status-candidates ()
   "Return a list of paths that are considered modified in some way by git."
-  (let* ((options (append `(,(unless consult-ls-git-show-untracked-files "-uno")
+  (let* ((options (append `(,(if consult-ls-git-show-untracked-files "-uno" "")
                             "--porcelain")
                           consult-ls-git-status-command-options))
          (candidates (consult-ls-git--candidates-from-git-command
