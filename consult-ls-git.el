@@ -188,6 +188,7 @@ project root was found."
   (let* ((options (append `(,(if consult-ls-git-show-untracked-files "-uno" "")
                             "--porcelain")
                           consult-ls-git-status-command-options))
+         (options (cl-remove-if (lambda (value) (string-equal value "")) options))
          (candidates (consult-ls-git--candidates-from-git-command
                       "status" default-directory options)))
     (save-match-data
