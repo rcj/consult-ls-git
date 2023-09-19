@@ -185,10 +185,9 @@ project root was found."
 
 (defun consult-ls-git--status-candidates ()
   "Return a list of paths that are considered modified in some way by git."
-  (let* ((options (append `(,(if consult-ls-git-show-untracked-files "-uno" "")
+  (let* ((options (append `(,@(unless consult-ls-git-show-untracked-files '("-uno"))
                             "--porcelain")
                           consult-ls-git-status-command-options))
-         (options (cl-remove-if (lambda (value) (string-equal value "")) options))
          (candidates (consult-ls-git--candidates-from-git-command
                       "status" default-directory options)))
     (save-match-data
