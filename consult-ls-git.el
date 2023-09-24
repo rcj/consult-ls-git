@@ -72,7 +72,7 @@
     ("^.*" . unknown))
   "Match a git status abbreviation to a readable string."
   :group 'consult-ls-git
-  :type '(repeat (string . function)))
+  :type '(alist :key-type string :value-type function))
 
 (defcustom consult-ls-git-stash-actions
   '(("apply" . vc-git-stash-apply)
@@ -81,7 +81,7 @@
     ("show" . vc-git-stash-show))
   "List of possible actions to invoke on a stash."
   :group 'consult-ls-git
-  :type '(repeat (string . function)))
+  :type '(alist :key-type string :value-type function))
 
 (defcustom consult-ls-git-status-command-options nil
   "List of command line options passed to git status to determine candidates."
