@@ -111,6 +111,11 @@
   :group 'consult-ls-git
   :type 'function)
 
+(defcustom consult-ls-git-git-program "git"
+  "Name or path to the git executable called to determine candidates."
+  :group 'consult-ls-git
+  :type 'string)
+
 (defvar consult-ls-git--source-tracked-files
   (list :name     "Tracked Files"
         :narrow   '(?f . "Tracked Files")
@@ -152,7 +157,7 @@
     (with-output-to-string
       (with-current-buffer
           standard-output
-        (apply #'process-file "git" nil t nil `("-C" ,path ,@cmd))))))
+        (apply #'process-file consult-ls-git-git-program nil t nil `("-C" ,path ,@cmd))))))
 
 (defun consult-ls-git--split-null-string (str)
   "Split STR  with null byte as separator into individual parts.
