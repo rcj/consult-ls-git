@@ -46,6 +46,8 @@
 (require 'consult)
 (require 'project)
 (require 'vc)
+(eval-when-compile
+  (declare-function tramp-file-local-name "tramp" (name)))
 
 (defgroup consult-ls-git nil
   "Consult for git."
