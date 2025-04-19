@@ -11,6 +11,7 @@ Alternatively you can narrow to a specific section via the shortcut key:
 - s: Status
 - z: Stash
 - f: Tracked Files
+- i: Ignored Files (Note: This source is not included by default in `consult-ls-git`, see `consult-ls-git-sources`)
 
 If =default-directory= is inside a git repository, it will use this
 repository. Otherwise `consult-ls-git-project-prompt-function' is used
@@ -21,10 +22,7 @@ Each view also has a standalone command in case that is preferable:
 - =consult-ls-git-status=
 - =consult-ls-git-stash=
 - =consult-ls-git-tracked-files=
-
-Additionally, there are standalone commands to specifically view ignored files:
-- =consult-ls-git-ls-ignored=
-- =consult-ls-git-ls-ignored-other-window=
+- =consult-ls-git-ignored= (Provides access to ignored files, not included in the default `consult-ls-git` view)
 
 * Examples
   - [[file:examples/consult-ls-git-status.gif][Status narrowing]]

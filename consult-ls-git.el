@@ -57,7 +57,7 @@
   '(consult-ls-git--source-status-files
     consult-ls-git--source-stash
     consult-ls-git--source-tracked-files)
-  "Default sources used by `consult-ls-git'. Does not include ignored files by default."
+  "Sources used by `consult-ls-git'. Does not include ignored files by default."
   :group 'consult-ls-git
   :type '(repeat symbol))
 
