@@ -22,6 +22,10 @@ Each view also has a standalone command in case that is preferable:
 - =consult-ls-git-stash=
 - =consult-ls-git-tracked-files=
 
+Additionally, there are standalone commands to specifically view ignored files:
+- =consult-ls-git-ls-ignored=
+- =consult-ls-git-ls-ignored-other-window=
+
 * Examples
   - [[file:examples/consult-ls-git-status.gif][Status narrowing]]
   - [[file:videos/consult-ls-git-stash.gif][Stash narrowing]]
