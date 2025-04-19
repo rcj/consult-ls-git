@@ -57,7 +57,7 @@
   '(consult-ls-git--source-status-files
     consult-ls-git--source-stash
     consult-ls-git--source-tracked-files)
-  "Sources used by `consult-ls-git'."
+  "Default sources used by `consult-ls-git'. Does not include ignored files by default."
   :group 'consult-ls-git
   :type '(repeat symbol))
 
@@ -105,6 +105,11 @@
   :group 'consult-ls-git
   :type '(repeat string))
 
+(defcustom consult-ls-git-ignored-files-command-options nil
+  "List of command line options passed to git ls-files --ignored --exclude-standard to determine candidates."
+  :group 'consult-ls-git
+  :type '(repeat string))
+
 (defcustom consult-ls-git-project-prompt-function
   (if (version< emacs-version "28.1")
       (lambda () (cdr (funcall #'consult--directory-prompt "Select project: " 'ask)))
@@ -130,6 +135,19 @@
           (consult-ls-git--candidates-from-git-command
            "ls-files" default-directory
            consult-ls-git-tracked-files-command-options))))
+
+(defvar consult-ls-git--source-ignored-files
+  (list :name     "Ignored Files"
+        :narrow   '(?i . "Ignored Files")
+        :category 'file
+        :face     'consult-file
+        :history  'file-name-history
+        :state    #'consult--file-state
+        :items
+        (lambda ()
+          (consult-ls-git--candidates-from-git-command
+           "ls-files --others --ignored --exclude-standard" default-directory
+           consult-ls-git-ignored-files-command-options))))
 
 (defvar consult-ls-git--source-status-files
   (list :name     "Status"
@@ -274,6 +292,20 @@ Untracked files are only included if
   (interactive)
   (let ((consult-ls-git-sources '(consult-ls-git--source-stash)))
     (call-interactively #'consult-ls-git)))
+
+;;;###autoload
+(defun consult-ls-git-ls-ignored ()
+  "Select an ignored file from a git repository."
+  (interactive)
+  (let ((consult-ls-git-sources '(consult-ls-git--source-ignored-files)))
+    (call-interactively #'consult-ls-git)))
+
+;;;###autoload
+(defun consult-ls-git-ls-ignored-other-window ()
+  "Select an ignored file from a git repository and open it in another window."
+  (interactive)
+  (let ((consult-ls-git-sources '(consult-ls-git--source-ignored-files)))
+    (call-interactively #'consult-ls-git-other-window)))
 
 (provide 'consult-ls-git)
 ;;; consult-ls-git.el ends here
